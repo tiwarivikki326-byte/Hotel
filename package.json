@@ -1,0 +1,9 @@
+{
+  "name": "qr-menu",
+  "version": "1.0.0",
+  "description": "QR code restaurant menu with admin panel and Hindi/English toggle",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=16" },
+  "license": "MIT"
+}

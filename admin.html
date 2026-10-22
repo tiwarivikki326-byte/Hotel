@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin Panel</title>
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section id="loginView" class="login-wrap" hidden>
+  <form id="loginForm" class="login-card" autocomplete="on">
+    <div class="logo">🍽️</div>
+    <h1>Admin Login</h1>
+    <p class="sub">एडमिन लॉगिन</p>
+    <label>Username · यूज़रनेम
+      <input id="lUser" name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Password · पासवर्ड
+      <input id="lPass" name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <div id="lErr" class="err" role="alert"></div>
+    <button class="btn primary big" type="submit">Login · लॉगिन</button>
+    <a class="back" href="/">← Customer menu</a>
+  </form>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<section id="appView" hidden>
+  <header class="top">
+    <div class="top-title">🍽️ <span id="topName">Admin</span></div>
+    <div class="top-actions">
+      <a class="btn ghost" href="/" target="_blank" rel="noopener">View menu ↗</a>
+      <button class="btn ghost" id="logoutBtn" type="button">Logout</button>
+    </div>
+  </header>
+
+  <div id="pwBanner" class="banner" hidden>
+    ⚠️ You are still using the default password. Please change it in <b>Settings</b>.
+    <br>आप अभी भी डिफ़ॉल्ट पासवर्ड इस्तेमाल कर रहे हैं। कृपया <b>Settings</b> में जाकर बदलें।
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="items" type="button">Menu Items · मेन्यू</button>
+    <button class="tab" data-tab="qr" type="button">QR Codes · क्यूआर</button>
+    <button class="tab" data-tab="settings" type="button">Settings · सेटिंग</button>
+  </nav>
+
+  <main class="panel">
+    <!-- ITEMS -->
+    <div id="tab-items" class="tabpane">
+      <div class="bar">
+        <h2>Menu Items <small>· <span id="itemCount">0</span></small></h2>
+        <button class="btn primary" id="addBtn" type="button">＋ Add Item · आइटम जोड़ें</button>
+      </div>
+      <div id="itemList" class="list"></div>
+    </div>
+
+    <!-- QR -->
+    <div id="tab-qr" class="tabpane" hidden>
+      <h2>QR Codes for Tables · टेबल के क्यूआर</h2>
+      <p class="hint">Print these and stick one on each table. Customers scan → the menu opens on their phone.<br>
+        इन्हें प्रिंट करके हर टेबल पर चिपकाएं। ग्राहक स्कैन करेगा तो मेन्यू फोन में खुलेगा।</p>
+      <div class="qr-form">
+        <label class="wide">Website address (your live domain) · वेबसाइट का पता
+          <input id="qrBase" placeholder="https://yourrestaurant.com">
+        </label>
+        <label>From table · से <input id="qrFrom" type="number" min="1" value="1"></label>
+        <label>To table · तक <input id="qrTo" type="number" min="1" value="10"></label>
+        <button class="btn primary" id="qrGen" type="button">Generate · बनाएं</button>
+        <button class="btn" id="qrPrint" type="button">🖨 Print · प्रिंट</button>
+      </div>
+      <div id="qrWarn" class="banner" hidden></div>
+      <div id="qrGrid" class="qr-grid"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" class="tabpane" hidden>
+      <h2>Restaurant Details · रेस्टोरेंट की जानकारी</h2>
+      <form id="setForm" class="card form-grid">
+        <label>Name (English)<input id="sNameEn" maxlength="80" required></label>
+        <label>नाम (हिंदी)<input id="sNameHi" maxlength="80"></label>
+        <label>Tagline (English)<input id="sTagEn" maxlength="120"></label>
+        <label>टैगलाइन (हिंदी)<input id="sTagHi" maxlength="120"></label>
+        <label>Currency symbol · करेंसी<input id="sCur" maxlength="4" placeholder="₹"></label>
+        <label class="wide">Review link (Google Maps review link etc.) · रिव्यू लिंक
+          <input id="sReview" placeholder="https://g.page/r/...">
+        </label>
+        <div class="wide"><button class="btn primary" type="submit">Save · सेव करें</button> <span id="setMsg" class="ok"></span></div>
+      </form>
+
+      <h2>Change Login · लॉगिन बदलें</h2>
+      <form id="pwForm" class="card form-grid" autocomplete="off">
+        <label>Current password · मौजूदा पासवर्ड<input id="pCur" type="password" autocomplete="current-password" required></label>
+        <label>New username (optional) · नया यूज़रनेम<input id="pUser" autocomplete="off"></label>
+        <label>New password (min 6) · नया पासवर्ड<input id="pNew" type="password" autocomplete="new-password" minlength="6" required></label>
+        <div class="wide"><button class="btn primary" type="submit">Change · बदलें</button> <span id="pwMsg" class="ok"></span></div>
+      </form>
+    </div>
+  </main>
+</section>
+
+<!-- ============ ITEM FORM ============ -->
+<dialog id="itemDlg">
+  <form id="itemForm" method="dialog">
+    <div class="dlg-head">
+      <h3 id="dlgTitle">Add Item</h3>
+      <button type="button" class="x" id="dlgClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="dlg-body form-grid">
+      <label>Item name (English) *<input id="fNameEn" maxlength="120" required></label>
+      <label>आइटम का नाम (हिंदी)<input id="fNameHi" maxlength="120"></label>
+      <label>Price · कीमत *<input id="fPrice" type="number" min="0" step="0.5" inputmode="decimal" required></label>
+      <label class="check"><input id="fAvail" type="checkbox" checked> <span>Available · उपलब्ध है</span></label>
+      <label>Category (English)<input id="fCatEn" maxlength="60" list="catListEn" placeholder="e.g. Main Course"></label>
+      <label>कैटेगरी (हिंदी)<input id="fCatHi" maxlength="60" list="catListHi" placeholder="जैसे: मुख्य व्यंजन"></label>
+      <datalist id="catListEn"></datalist><datalist id="catListHi"></datalist>
+      <label class="wide">Description (English)<textarea id="fDescEn" rows="2" maxlength="600"></textarea></label>
+      <label class="wide">विवरण (हिंदी)<textarea id="fDescHi" rows="2" maxlength="600"></textarea></label>
+
+      <div class="wide media-box">
+        <div class="media">
+          <div class="media-label">Photo · फोटो</div>
+          <div class="media-prev" id="imgPrev"></div>
+          <input type="file" id="fImg" accept="image/*" hidden>
+          <button class="btn small" type="button" id="imgPick">Choose photo</button>
+          <button class="btn small danger" type="button" id="imgDel" hidden>Remove</button>
+        </div>
+        <div class="media">
+          <div class="media-label">Video (optional) · वीडियो (वैकल्पिक)</div>
+          <div class="media-prev" id="vidPrev"></div>
+          <input type="file" id="fVid" accept="video/mp4,video/webm,video/quicktime" hidden>
+          <button class="btn small" type="button" id="vidPick">Choose video</button>
+          <button class="btn small danger" type="button" id="vidDel" hidden>Remove</button>
+          <div class="hint small">Max 60 MB · mp4 recommended</div>
+        </div>
+      </div>
+      <div id="upStatus" class="wide hint"></div>
+      <div id="fErr" class="wide err" role="alert"></div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn" id="dlgCancel">Cancel</button>
+      <button type="submit" class="btn primary" id="dlgSave">Save · सेव करें</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="/js/qrcode.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>
